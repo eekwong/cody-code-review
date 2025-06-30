@@ -1,0 +1,38 @@
+name: Automated Code Review by Cody
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: "Environment to run the job in"
+        required: false
+        type: string
+        default: "ubuntu-latest"
+    secrets:
+      GITHUB_TOKEN:
+        description: "GitHub token for authentication"
+        required: true
+      SRC_ACCESS_TOKEN:
+        description: "Cody access token"
+        required: true
+      SRC_ENDPOINT:
+        description: "Cody endpoint"
+        required: true
+
+jobs:
+  code_review:
+    runs-on: ${{ inputs.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: eekwong/cody-code-review
+          ref: main
+          path: .cody-code-review
+      - name: Run Cody code review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SRC_ACCESS_TOKEN: ${{ secrets.SRC_ACCESS_TOKEN }}
+          SRC_ENDPOINT: ${{ secrets.SRC_ENDPOINT }}
+        run: |
+          python3 .cody-code-review/code_review.py
